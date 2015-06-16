@@ -1,0 +1,15 @@
+{
+  "name": "vatn",
+  "version": "0.0.1",
+  "description": "Vatnamælingar Íslands",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agustik/vatn"
+  },
+  "dependencies": {
+    "request": "~2.57.0",
+    "utf8": "~2.1.0",
+    "iconv": "~2.1.8"
+  }
+}
