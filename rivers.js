@@ -1,6 +1,4 @@
-var request = require('request');
-
-var utf8 = require('utf8');
+﻿var request = require('request');
 
 var Iconv  = require('iconv').Iconv;
 
