@@ -5,9 +5,10 @@ var fs = require('fs');
 
 
 
-
+/*
 rivers.get().rivers(function (err, data){
-    var river, arr,i=0, l = data.length;
+    console.log(data);
+    /*var river, arr,i=0, l = data.length;
     var arr = [];
     for (key in data){
         river = data[key];
@@ -18,6 +19,9 @@ rivers.get().rivers(function (err, data){
                 fs.writeFileSync('rivers.json',  JSON.stringify(arr, null, 4));
             }
         });
-    }
-}); 
+    }*
+}); */
 
+rivers.get().status({id:91},function (err, status){
+    console.log(status);
+});
