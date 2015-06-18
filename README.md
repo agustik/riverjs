@@ -29,7 +29,7 @@ var rivers = require('./rivers.js');
 		}
 	}); 
 
-** You can also collect all data**
+**You can also collect all data**
 >Collecting all rivers and river status
 
 	rivers.get().rivers(function (err, data){
