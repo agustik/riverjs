@@ -122,12 +122,13 @@ var rivers = {
             return obj;
         },
         _fetchRiverStatus : function (string){
-            var _tools = this, td, key, value, time, tr, obj = {};
+            var _tools = this, td, key, value, time, tr, epoch, obj = {};
             
             var $ = cheerio.load(string);
             var element = $('#tab1');
 
                 time = _tools._parseTime(element.find('div').text());
+                epoch = new Date(time).getTime();
                 tr = element.find('table').find('tr');
                 
             tr.each(function (i){
@@ -137,7 +138,7 @@ var rivers = {
                obj[key] = value;
             });
 
-            return {timestamp : time, mesurements : obj};
+            return {time : time, epoch : epoch, mesurements : obj};
 
         },
         _cleanRiverData:function(data){
@@ -174,7 +175,7 @@ var rivers = {
             MM = tmp[1].split('.')[1].split(' ')[0];
 
             var datestring = [YYYY, MM, DD].join('.') + " " +[hh, mm].join(':');
-            timestamp = new Date(datestring).getTime();
+            timestamp = new Date(datestring);
 
             return timestamp;
 
