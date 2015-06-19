@@ -156,8 +156,6 @@ var rivers = {
 
         },
         _parseTime : function (string){
-
-            console.log(string);
             if(!string){
                 return;
             }
