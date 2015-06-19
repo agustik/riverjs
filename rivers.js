@@ -24,37 +24,43 @@ var rivers = {
                 request(url.front, {timeout: 20000, encoding: null}, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
 
-                        var buf = iconv.convert(body);
-                        var data = buf.toString('utf-8');
-                        var raw=[];
-                        var line, lines = data.split('\n');
-                        var reg = new RegExp('(places\[[0-9]{0,4}\]=)');
+                        var buf = iconv.convert(body),
+                            data = buf.toString('utf-8'),
+                            arr=[], line, lines = data.split('\n'),
+                            reg = new RegExp('(places\[[0-9]{0,4}\]=)');
+
+
                         for (key in lines){
                             line = lines[key];
                             if(reg.test(line)){
-                                raw.push(_root.tools._cleanPlaces(line));
+                                arr.push(_root.tools._cleanPlaces(line));
                             }
                         }
-                        callback(null, raw);
+                        callback(null, arr);
+                    }else{
+                        callback(error, response);
                     }
                 });
             },
-            graph : function (id, callback){
-                if(!id){
-                    callback('No id');
+            graph : function (river, callback){
+                if(!river){
+                    callback('No river object, river.id is required');
                     return;
                 }
-                request(url.graph + "?site_id="+id, {timeout: 20000, encoding: null}, function (error, response, body) {
+                request(url.graph + "?site_id="+river.id, {timeout: 20000, encoding: null}, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
-                        var buf = iconv.convert(body);
-                        var buffer = buf.toString('utf-8');
-                        var form = _root.tools._fetchForm(buffer);
+                        var buf = iconv.convert(body),
+                            buffer = buf.toString('utf-8'),
+                            form = _root.tools._fetchForm(buffer);
+
                         _root.tools._fetchFormData(form, function (err, data){
                             if(!err){
                                 var parse = _root.tools._cleanRiverData(data);
                                 callback(null, parse);
                             }
                         });
+                    }else{
+                        callback(error, response);
                     }
                 });
 
@@ -66,13 +72,15 @@ var rivers = {
                 }
                 request(url.graph + "?site_id="+river.id, {timeout: 20000, encoding: null}, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
-                        var buf = iconv.convert(body);
-                        var buffer = buf.toString('utf-8');
+                        var buf = iconv.convert(body),
+                            buffer = buf.toString('utf-8'),
+                            values = _root.tools._fetchRiverStatus(buffer),
+                            obj = { river : river, value : values};
 
-                        var values = _root.tools._fetchRiverStatus(buffer);
-                        var obj = { river : river, value : values};
                         callback(null, obj);
                         
+                    }else{
+                        callback(error, response);
                     }
                 });
             }
@@ -88,7 +96,7 @@ var rivers = {
                 if (!error && response.statusCode == 200) {
                     callback(null, body);
                 }else{
-                    callback(error);
+                    callback(error, response);
                 }
             });
         }, 
@@ -114,16 +122,14 @@ var rivers = {
             return obj;
         },
         _fetchRiverStatus : function (string){
-            var _tools = this;
-            var td, key, value;
+            var _tools = this, td, key, value, time, tr, obj = {};
+            
             var $ = cheerio.load(string);
             var element = $('#tab1');
 
-            var time = _tools._parseTime(element.find('div').text());
-            var tr = element.find('table').find('tr');
-
-            //console.log(time, tr);
-            var obj = {};
+                time = _tools._parseTime(element.find('div').text());
+                tr = element.find('table').find('tr');
+                
             tr.each(function (i){
                td = $(this).find('td');
                key = _tools._cleanKey($(this).find('.left_col').text());
@@ -135,10 +141,10 @@ var rivers = {
 
         },
         _cleanRiverData:function(data){
-            var _tools = this;
-            var arr=[];
-            var line, lines = data.split('\n');
+            var _tools = this, arr=[], line, lines = data.split('\n');
             var reg = new RegExp(/Array\([0-9]*\,/);
+
+
             for (key in lines){
                 line = lines[key];
                 if(reg.test(line)){
@@ -252,27 +258,20 @@ var rivers = {
         },
         _cleanPlaces:function(string){
 
-            var tmp;
+            var tmp, arr;
 
 
             tmp = string.split('=')[1];
             tmp = tmp.replace(/;/g,'');
             tmp = tmp.replace(/'/g,'"');
-            var arr = this._parseJSON(tmp);
+
+            arr = JSON.parse(tmp);
             return {
                 id : arr[0],
                 latitude : arr[1],
                 longitude : arr[2],
                 name : arr[4]
             };
-        },
-        _parseJSON: function (string){
-            try{
-                return JSON.parse(string);
-
-            }catch (e){
-                console.log(e)
-            }
         }
     }
     
