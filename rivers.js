@@ -121,6 +121,9 @@ var rivers = {
 
             return obj;
         },
+        _toInt: function (string){
+            return (!isNaN(+string)) ? +string : string;
+        },
         _fetchRiverStatus : function (string){
             var _tools = this, td, key, value, time, tr, epoch, obj = {};
             
@@ -134,7 +137,7 @@ var rivers = {
             tr.each(function (i){
                td = $(this).find('td');
                key = _tools._cleanKey($(this).find('.left_col').text());
-               value = $(this).find('.right_col').text();
+               value = _tools._toInt($(this).find('.right_col').text());
                obj[key] = value;
             });
 
